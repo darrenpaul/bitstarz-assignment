@@ -23,8 +23,6 @@ function getApiKeyFromHeader() {
 export async function GET(req: NextRequest) {
   const apiKey = getApiKeyFromHeader();
 
-  console.log(apiKey);
-
   if (!apiKey || apiKey !== "Apples") {
     return unauthorizedResponse();
   }

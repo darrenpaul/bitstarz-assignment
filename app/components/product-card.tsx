@@ -16,7 +16,7 @@ export default function ProductCard(props: Props) {
   }, [favorites, props.product.id]);
 
   return (
-    <div className="bg-blue-300 h-full p-4 rounded-lg">
+    <div className="bg-blue-300 h-32 p-4 rounded-lg">
       <p>{props.product.name}</p>
 
       {isFavourite && (

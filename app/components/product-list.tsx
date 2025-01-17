@@ -11,6 +11,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 type Props = {
   products: Product[];
+  label: string;
 };
 
 const SwiperNavButtons = () => {
@@ -45,7 +46,9 @@ const SwiperNavButtons = () => {
 
 export default function ProductList(props: Props) {
   return (
-    <div className="max-w-screen-xl mx-auto relative px-10 ">
+    <div className="max-w-screen-2xl mx-auto relative px-10">
+      <p className="text-2xl font-bold">{props.label}</p>
+
       <Swiper
         modules={[Navigation, Pagination]}
         spaceBetween={12}

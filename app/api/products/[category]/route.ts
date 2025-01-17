@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const searchParams = req.nextUrl.searchParams;
-    console.log("asdasdasdasdsa");
 
     const offset = parseInt(searchParams.get("offset") || "0");
     const limit = parseInt(searchParams.get("limit") || "10");
