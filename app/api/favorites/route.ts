@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { favorites } from "@/app/data/favorites";
 import { headers } from "next/headers";
-
-let favoritesState = [...favorites];
+import { Url } from "@/app/constants/url";
 
 function unauthorizedResponse() {
   return Response.json(
@@ -20,34 +18,59 @@ function getApiKeyFromHeader() {
   return headersList.get("x-api-key");
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const apiKey = getApiKeyFromHeader();
 
   if (!apiKey || apiKey !== "Apples") {
     return unauthorizedResponse();
   }
 
+  const response = await fetch(`${Url.BASE_URL}/favorites`, {
+    method: "GET",
+    headers: {
+      "x-api-key": "secret-key-apples",
+    },
+  });
+
+  const data = await response.json();
+
   return NextResponse.json({
-    favorites: favoritesState,
+    favorites: data,
   });
 }
 
 export async function POST(req: NextRequest) {
-  const data = await req.json();
+  const payload = await req.json();
 
-  favoritesState.push(data.productId);
+  const response = await fetch(`${Url.BASE_URL}/favorites`, {
+    method: "POST",
+    headers: {
+      "x-api-key": "secret-key-apples",
+    },
+    body: JSON.stringify({ id: payload.productId }),
+  });
+
+  const data = await response.json();
 
   return NextResponse.json({
-    favorites: favoritesState,
+    favorites: data,
   });
 }
 
 export async function DELETE(req: NextRequest) {
-  const data = await req.json();
+  const payload = await req.json();
 
-  favoritesState = favoritesState.filter((id) => id !== data.productId);
+  const response = await fetch(`${Url.BASE_URL}/favorites`, {
+    method: "DELETE",
+    headers: {
+      "x-api-key": "secret-key-apples",
+    },
+    body: JSON.stringify({ id: payload.productId }),
+  });
+
+  const data = await response.json();
 
   return NextResponse.json({
-    favorites: favoritesState,
+    favorites: data,
   });
 }

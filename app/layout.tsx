@@ -18,9 +18,11 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-blue-900 mb-6 p-6`}>
         <FavoritesProvider>
-          <p>apples</p>
+          <h1 className="text-3xl font-bold text-white mb-6 px-6 py-2">
+            BitStarz
+          </h1>
           {children}
         </FavoritesProvider>
       </body>

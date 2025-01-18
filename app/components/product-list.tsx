@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import ProductCard from "@/app/components/product-card";
 import { Product } from "@/app/types/item";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -9,45 +9,102 @@ import { useSwiper } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-type Props = {
-  products: Product[];
-  label: string;
-};
 
-const SwiperNavButtons = () => {
+enum Direction {
+  NEXT = "next",
+  PREV = "prev",
+}
+
+function SwiperNavButtons({
+  onSwipeButtonClick,
+}: {
+  onSwipeButtonClick: (direction: Direction) => void;
+}) {
   const swiper = useSwiper();
 
   return (
-    <div className="absolute top-1/2 -translate-y-1/2 z-10 w-full">
-      <Link
-        href={{ query: { limit: 10 } }}
-        className="absolute left-0 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+    <div className="flex gap-2 mt-3">
+      <button
+        className="h-14 py-2 px-4 bg-blue-700 text-white rounded-lg hover:bg-blue-800"
         aria-label="Previous slide"
         onClick={() => {
           swiper.slidePrev();
+          onSwipeButtonClick(Direction.PREV);
         }}
       >
-        L
-      </Link>
+        Prev
+      </button>
 
-      <Link
-        href={{ query: { limit: 20 } }}
-        className="absolute right-0 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+      <button
+        className="h-14 py-2 px-4 bg-blue-700 text-white rounded-lg hover:bg-blue-800"
         aria-label="Previous slide"
         onClick={() => {
           swiper.slideNext();
+          onSwipeButtonClick(Direction.NEXT);
         }}
       >
-        R
-      </Link>
+        Next
+      </button>
     </div>
   );
+}
+
+type Props = {
+  products: Product[];
+  category: string;
 };
 
 export default function ProductList(props: Props) {
+  const initialLimit = 10;
+
+  const [count, setCount] = useState(0);
+  const [products, setProducts] = useState(props.products);
+  const [limit, setLimit] = useState(initialLimit);
+
+  async function refreshProducts() {
+    const response = await fetch(
+      `http://localhost:3000/api/products/${props.category}?${new URLSearchParams(
+        {
+          limit: limit.toString(),
+          offset: "0",
+        },
+      ).toString()}`,
+      {
+        method: "GET",
+      },
+    );
+
+    const data = await response.json();
+
+    if (data.products.length > 0) {
+      setProducts(data.products);
+    }
+  }
+
+  function handleSwiperButtonClick(direction: Direction) {
+    if (direction === Direction.PREV) {
+      setCount(Math.max(count - 1, 0));
+
+      if (count % 5 === 0) {
+        setLimit(Math.max(limit - initialLimit, 0));
+      }
+    }
+
+    if (direction === Direction.NEXT) {
+      setCount(count + 1);
+
+      if (count % 5 === 0) {
+        setLimit(limit + initialLimit);
+        refreshProducts();
+      }
+    }
+  }
+
   return (
-    <div className="max-w-screen-2xl mx-auto relative px-10">
-      <p className="text-2xl font-bold">{props.label}</p>
+    <div className="max-w-screen-2xl mx-auto relative rounded-lg px-10 py-6 bg-blue-200 shadow-md">
+      <p className="text-2xl font-bold uppercase mb-3">{props.category}</p>
+
+      {count}
 
       <Swiper
         modules={[Navigation, Pagination]}
@@ -75,14 +132,14 @@ export default function ProductList(props: Props) {
             spaceBetween: 12,
           },
         }}
-        className="relative"
       >
-        {props.products.map((product) => (
+        {products.map((product) => (
           <SwiperSlide key={product.id}>
             <ProductCard product={product} />
           </SwiperSlide>
         ))}
-        <SwiperNavButtons />
+
+        <SwiperNavButtons onSwipeButtonClick={handleSwiperButtonClick} />
       </Swiper>
     </div>
   );
